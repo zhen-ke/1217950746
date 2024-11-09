@@ -15,6 +15,7 @@ dns:
     - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
   fallback:
+    - https://dns.google/dns-query
     - https://1.1.1.2/dns-query
     - https://1.0.0.2/dns-query
     - https://9.9.9.9/dns-query
