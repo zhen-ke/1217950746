@@ -7,20 +7,54 @@ external-controller: :9090
 dns:
   enable: true
   listen: 0.0.0.0:53
-  ipv6: true
-  default-nameserver:
-    - 1.1.1.1
-    - 8.8.8.8
-  nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
-  fallback:
-    - https://dns.google/dns-query
-    - https://1.1.1.2/dns-query
-    - https://1.0.0.2/dns-query
-    - https://9.9.9.9/dns-query
+  ipv6: false
+  enhanced-mode: redir-host      # 如果你玩游戏或需要更好兼容性
+  # enhanced-mode: fake-ip       # 如果你主要是上网冲浪
+  # fake-ip-range: 198.18.0.1/16  # 可选：添加fake-ip范围
+  # enhanced-mode: fake-ip        # 可选：使用fake-ip模式
+  # fake-ip-filter:              # 可选：添加fake-ip过滤
+  #   - '*.lan'
+  #   - 'localhost.ptlogin2.qq.com'
+  # 默认DNS服务器，用于解析DoH地址等
+  default-nameserver:        
+    - 1.1.1.1               # Cloudflare DNS
+    - 8.8.8.8               # Google DNS
+  
+  # 主要DNS服务器 - 用于解析国内域名
+  nameserver:               
+    - https://doh.pub/dns-query          # DNSPod的DoH服务器
+    - https://dns.alidns.com/dns-query   # 阿里DNS的DoH服务器
+  
+  # 备用DNS服务器 - 用于解析国外域名
+  fallback:                 
+    - https://dns.google/dns-query       # Google的DoH服务器
+    - https://1.1.1.2/dns-query          # Cloudflare安全DNS
+    - https://1.0.0.2/dns-query          # Cloudflare安全DNS备用
+    - https://9.9.9.9/dns-query          # Quad9 DNS
+  
+  # DNS回退过滤器配置
   fallback-filter:
-    geoip: true
-    geoip-code: CN
-    ipcidr:
-      - 240.0.0.0/4
+    geoip: true             # 启用GeoIP过滤
+    geoip-code: CN          # 使用中国IP数据库
+    ipcidr:                 # IP段过滤
+      - 240.0.0.0/4        # 保留地址不使用fallback
+
+# DNS工作流程说明：
+# 1. 当接收到DNS请求时，首先使用default-nameserver解析DoH服务器地址
+# 2. 解析国内域名时使用nameserver中的DNS服务器
+# 3. 解析国外域名或nameserver解析失败时使用fallback中的DNS服务器
+# 4. fallback-filter用于控制哪些请求会被转发到fallback服务器
+#    - 当请求的IP在中国时使用nameserver
+#    - 当请求的IP在国外时使用fallback
+#    - 保留地址不使用fallback
+
+# 安全性说明：
+# 1. 使用DoH(DNS over HTTPS)加密DNS请求
+# 2. 使用fallback-filter防止DNS污染
+# 3. 分流机制确保国内外域名使用合适的DNS服务器
+# 4. 过滤保留地址防止DNS泄露
+
+# 性能优化：
+# 1. 使用multiple DoH服务器提供冗余
+# 2. 就近解析(国内域名用国内DNS，国外域名用国外DNS)
+# 3. 使用redir-host模式保证兼容性
