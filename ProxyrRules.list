@@ -3,3 +3,4 @@ DOMAIN-SUFFIX,xiaobaotv.app
 DOMAIN-SUFFIX,kuyavod.com
 DOMAIN-SUFFIX,66tutup.com
 DOMAIN-SUFFIX,intercom.io
+IP-CIDR,192.168.10.0/24,no-resolve
